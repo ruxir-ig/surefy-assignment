@@ -15,7 +15,7 @@
     "lint:types": "bunx tsc -p tsconfig.json --noEmit"
   },
   "engines": {
-    "node": "18.x"
+    "node": "22.x"
   },
   "devDependencies": {
     "@types/bun": "latest",
