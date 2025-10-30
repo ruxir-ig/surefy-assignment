@@ -4,13 +4,18 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "bun run src/server.ts",
+    "start": "node src/server.ts",
     "dev": "bun --watch src/server.ts",
+    "build": "tsc",
+    "vercel-build": "echo 'Build complete'",
     "test": "bun test",
     "test:watch": "bun test --watch",
     "format": "bunx prettier --write .",
     "format:check": "bunx prettier --check .",
     "lint:types": "bunx tsc -p tsconfig.json --noEmit"
+  },
+  "engines": {
+    "node": "18.x"
   },
   "devDependencies": {
     "@types/bun": "latest",

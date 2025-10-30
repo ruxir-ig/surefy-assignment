@@ -42,6 +42,12 @@ pool
   .then(() => console.log("Connected to PGSQL"))
   .catch((err) => console.log("db connection error:", err.stack()));
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+// For Vercel, export the app instead of listening
+if (process.env.NODE_ENV !== "production") {
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
+
+// Export for Vercel
+export default app;
