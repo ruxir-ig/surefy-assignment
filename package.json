@@ -29,6 +29,7 @@
   "dependencies": {
     "@types/bcryptjs": "^3.0.0",
     "@types/express-session": "^1.18.2",
+    "@vercel/node": "^5.5.2",
     "bcryptjs": "^3.0.2",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
