@@ -3,12 +3,14 @@
 import express from "express";
 import dotenv from "dotenv";
 import session from "express-session";
+import ConnectPgSimple from "connect-pg-simple";
 import eventRoutes from "./routes/events";
 import authRoutes from "./routes/auth";
 import { pool } from "./db/index";
 
 dotenv.config();
 const app = express();
+const PgSession = ConnectPgSimple(session);
 
 // Middleware
 app.use(express.json());
@@ -16,6 +18,11 @@ app.use(express.json());
 // Session configuration
 app.use(
   session({
+    store: new PgSession({
+      pool: pool,
+      tableName: "sessions",
+      createTableIfMissing: true,
+    }),
     secret:
       process.env.SESSION_SECRET || "your-secret-key-change-in-production",
     resave: false,
@@ -36,11 +43,6 @@ app.use("/auth", authRoutes);
 app.use("/events", eventRoutes);
 
 const PORT = process.env.PORT || 3000;
-
-pool
-  .connect()
-  .then(() => console.log("Connected to PGSQL"))
-  .catch((err) => console.log("db connection error:", err.stack()));
 
 // For Vercel, export the app instead of listening
 if (process.env.NODE_ENV !== "production") {

@@ -2,13 +2,16 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import express from "express";
 import dotenv from "dotenv";
 import session from "express-session";
+import ConnectPgSimple from "connect-pg-simple";
 import eventRoutes from "../src/routes/events";
 import authRoutes from "../src/routes/auth";
+import { pool } from "../src/db/index";
 import path from "path";
 
 dotenv.config();
 
 const app = express();
+const PgSession = ConnectPgSimple(session);
 
 // Middleware
 app.use(express.json());
@@ -16,6 +19,11 @@ app.use(express.json());
 // Session configuration
 app.use(
   session({
+    store: new PgSession({
+      pool: pool,
+      tableName: "sessions",
+      createTableIfMissing: true,
+    }),
     secret:
       process.env.SESSION_SECRET || "your-secret-key-change-in-production",
     resave: false,

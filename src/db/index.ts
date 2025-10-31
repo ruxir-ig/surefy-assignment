@@ -1,37 +1,25 @@
-// db/index.ts
 import { Pool } from "pg";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-// Support both Neon (POSTGRES_URL) and custom env vars
-const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+// Use a single DATABASE_URL for serverless environments (e.g., Vercel + Neon)
+const connectionString = process.env.DATABASE_URL;
 
-export const pool = connectionString
-  ? new Pool({
-      connectionString,
-      ssl: {
-        rejectUnauthorized: false,
-      },
-    })
-  : new Pool({
-      user: process.env.DB_USER || process.env.POSTGRES_USER || "eventuser",
-      host: process.env.DB_HOST || process.env.POSTGRES_HOST || "localhost",
-      database:
-        process.env.DB_NAME || process.env.POSTGRES_DATABASE || "eventdb",
-      password:
-        process.env.DB_PASSWORD || process.env.POSTGRES_PASSWORD || "event123",
-      port: parseInt(
-        process.env.DB_PORT || process.env.POSTGRES_PORT || "5432",
-      ),
-    });
+if (!connectionString) {
+  throw new Error("DATABASE_URL environment variable is not set");
+}
 
-// Test connection
-pool.connect((err, client, release) => {
-  if (err) {
-    console.error("!!! Error connecting to the database:", err.stack);
-  } else {
-    console.log(":> Database connected successfully");
-    release();
-  }
+export const pool = new Pool({
+  connectionString,
+  ssl: {
+    rejectUnauthorized: false,
+  },
+  // Minimal pool for serverless: keep connections low and timeouts short
+  max: 1,
+  idleTimeoutMillis: 30_000,
+  connectionTimeoutMillis: 10_000,
 });
+
+// Important: Do not eagerly connect here. In serverless environments,
+// connections are established lazily on the first query using this pool.
